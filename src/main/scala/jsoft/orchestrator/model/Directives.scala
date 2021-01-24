@@ -1,6 +1,6 @@
 package jsoft.orchestrator.model
 
-import jsoft.orchestrator.model.dependency.impl.TaskApplyConverter
+import jsoft.orchestrator.model.dependency.impl.EventApplyConverter
 import jsoft.orchestrator.model.dependency.{Dependency, JoinInstances}
 import jsoft.orchestrator.model.event.{Event, EventDefinition}
 import jsoft.orchestrator.model.solver.SolverMetadata
@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 import scala.reflect.runtime.universe.typeOf
 
-trait Directives extends TaskApplyConverter with JoinInstances {
+trait Directives extends EventApplyConverter with JoinInstances {
 
   final val AutoTrigger = new Dependency[Unit] {
     val scope: Set[String] = Set.empty
@@ -22,7 +22,7 @@ trait Directives extends TaskApplyConverter with JoinInstances {
 
   }
 
-  final implicit def asEvent[A: Manifest](item: (String, A)): Event {type Repr = A} = Directives.eventBuilder(item)
+//  final implicit def asEvent[A: Manifest](item: (String, A)): Event {type Repr = A} = Directives.eventBuilder(item)
 
   final def Orchestrate(name: String, procedures: Procedure*)(implicit ec: ExecutionContext): OrchestratorService = OrchestratorServiceImpl(name, Array(procedures: _*))
 

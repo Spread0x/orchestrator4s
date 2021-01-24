@@ -4,10 +4,10 @@ import io.timeandspace.smoothie.SmoothieMap
 import jsoft.orchestrator.model.Context
 import jsoft.orchestrator.model.event.{Event, EventDefinition}
 import jsoft.orchestrator.model.state.{Finished, Idle, Running, State}
-import jsoft.orchestrator.model.task.{Procedure, Task}
+import jsoft.orchestrator.model.task.Procedure
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
 
 final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[Procedure])(implicit ec: ExecutionContext) {
 
@@ -28,26 +28,20 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
   def getEvent(eventName: String): Option[Event] = Option(eventsStore.get(eventName))
 
-  def push(tasks: Task*): Unit = synchronized {
+  def push(events: Event*): Unit = synchronized {
 
     if (!promise.isCompleted) {
-      val maybeWorks: Try[Boolean] = Try {
-        tasks.exists { eventExtractor =>
-          val event: Event = eventExtractor()
-
+      val hasDeps: Boolean = {
+        events.exists { event =>
           eventsStore.putIfAbsent(event.name, event)
           hasDependents(event)
         }
       }
 
-      maybeWorks match {
-        case Failure(exception) => promise.failure(exception)
-        case Success(hasDependents) =>
-          if (hasDependents) {
-            ec.execute(() => checkForDependencies())
-          } else {
-            completeCall()
-          }
+      if (hasDeps) {
+        ec.execute(() => checkForDependencies())
+      } else {
+        completeCall()
       }
     }
   }
@@ -63,7 +57,7 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
         if (proc.isReady(me)) {
           updateState(idx, Running)
-          tryExecute(proc.execute(me)) {
+          tryExecute(proc.execute(me), proc.maxRetries) {
             updateState(idx, Finished)
 
             val promiseAvailable: Boolean = !promise.isCompleted
@@ -78,17 +72,23 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
       }
   }
 
-  private def tryExecute(block: => Unit)(onComplete: => Unit): Unit = {
+  private def tryExecute(block: => Unit, maxRetries: Int, currentRetry: Int = 1)(onComplete: => Unit): Unit = {
 
     ec.execute { () =>
       Try(block) match {
         case Failure(exception) =>
-          if (!promise.isCompleted) {
-            promise.failure(exception)
+
+          if (currentRetry == maxRetries) {
+            if (!promise.isCompleted) {
+              promise.failure(exception)
+            }
+          } else {
+            tryExecute(block, maxRetries, currentRetry + 1)(onComplete)
           }
-        case _ =>
+
+        case _ => onComplete
       }
-      onComplete
+
     }
   }
 

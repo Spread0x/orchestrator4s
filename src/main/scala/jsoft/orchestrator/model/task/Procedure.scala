@@ -2,15 +2,17 @@ package jsoft.orchestrator.model.task
 
 import jsoft.orchestrator.model.Context
 import jsoft.orchestrator.model.dependency.Dependency
-import jsoft.orchestrator.model.event.EventDefinition
+import jsoft.orchestrator.model.event.{Event, EventDefinition}
 import jsoft.orchestrator.model.solver.SolverSettings
 
 trait Procedure {
   type Repr
 
+  def identifier: String
+
   def scope: Set[String] = solverSettings.dependency.scope
 
-  def identifier: String
+  def maxRetries: Int
 
   def solverSettings: SolverSettings[Repr]
 
@@ -20,7 +22,7 @@ trait Procedure {
 
   def dependsOf(depsName: String): Boolean = scope.contains(depsName)
 
-  def routine: Repr => Task
+  def routine: Repr => Event
 
   def isReady(context: Context): Boolean = {
     solverSettings.dependency.isReady(context)

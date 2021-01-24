@@ -68,9 +68,11 @@ case object WebShop extends App with Directives {
     Process("build-order")
       .triggers(EventOrderValid + EventGenerateOrderTrackID + EventCustomerInfo + EventOrderPlaced)
       .dispatch(EventOrderBuilt)
+      .maxRetries(10)
       .receptor { (_, id, customer, webOrder) =>
-        val order: Order = Order(id, customer, webOrder.items.map(x => Item(x.id, (x.quantity * 2).toFloat)))
-        EventOrderBuilt(order)
+        EventOrderBuilt {
+          Order(id, customer, webOrder.items.map(x => Item(x.id, (x.quantity * 2).toFloat)))
+        }
       },
 
     Process("complete-with-trackable")

@@ -2,7 +2,6 @@ package jsoft.orchestrator.model.event
 
 import jsoft.orchestrator.lib.Mapper
 import jsoft.orchestrator.model.dependency.Dependency
-import jsoft.orchestrator.model.task.Task
 import jsoft.orchestrator.model.{Context, Directives}
 
 import scala.concurrent.Future
@@ -12,7 +11,7 @@ final case class EventDefinition[T: Manifest](eventName: String, description: Op
 
   val scope: Set[String] = Set(eventName)
 
-  def apply(instance: T): Task = () => Directives.eventBuilder(eventName, instance)
+  def apply(instance: T): Event = Directives.eventBuilder(eventName, instance)
 
   def apply[B](f: T => B): Mapper[T, B, Future] = {
     val me: EventDefinition[T] = this

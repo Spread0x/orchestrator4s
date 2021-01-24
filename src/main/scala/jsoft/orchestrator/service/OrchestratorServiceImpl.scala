@@ -2,7 +2,8 @@ package jsoft.orchestrator.service
 
 import jsoft.orchestrator.lib.{Extractor, Mapper}
 import jsoft.orchestrator.model.Context
-import jsoft.orchestrator.model.task.{Procedure, Task}
+import jsoft.orchestrator.model.event.Event
+import jsoft.orchestrator.model.task.Procedure
 import jsoft.orchestrator.runtime.RuntimeContext
 
 import java.util.UUID
@@ -16,13 +17,13 @@ final case class OrchestratorServiceImpl(name: String, procedures: Array[Procedu
   assert(leafNodes > 0, "At least one Procedure must no dispatch events.")
 
   //noinspection ConvertExpressionToSAM
-  def dispatchAndExtract[T](tasks: Task*): Extractor[Future, T] = {
-    assert(tasks.nonEmpty, "Tasks must be not empty")
+  def dispatchAndExtract[T](events: Event*): Extractor[Future, T] = {
+    assert(events.nonEmpty, "Events must be not empty")
 
     new Extractor[Future, T] {
       val runtimeContext: Context = RuntimeContext(UUID.randomUUID().toString, leafNodes, procedures)
       val binding: Future[Context] = runtimeContext.binding()
-      runtimeContext.push(tasks: _*)
+      runtimeContext.push(events: _*)
 
       override def apply(mappers: Mapper[_, T, Future]*): Future[T] = {
         binding.flatMap { context =>
@@ -45,10 +46,10 @@ final case class OrchestratorServiceImpl(name: String, procedures: Array[Procedu
     }
   }
 
-  override def dispatch(tasks: Task*): Future[Context] = {
+  override def dispatch(events: Event*): Future[Context] = {
     val runtimeContext: Context = RuntimeContext(UUID.randomUUID().toString, leafNodes, procedures)
     val binding: Future[Context] = runtimeContext.binding()
-    runtimeContext.push(tasks: _*)
+    runtimeContext.push(events: _*)
     binding
   }
 }
