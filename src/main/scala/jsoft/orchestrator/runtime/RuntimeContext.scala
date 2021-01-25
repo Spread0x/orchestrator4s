@@ -1,10 +1,10 @@
 package jsoft.orchestrator.runtime
 
 import io.timeandspace.smoothie.SmoothieMap
-import jsoft.orchestrator.model.{Context, Task}
 import jsoft.orchestrator.model.event.{Event, EventDefinition}
 import jsoft.orchestrator.model.state.{Finished, Idle, Running, State}
 import jsoft.orchestrator.model.task.Procedure
+import jsoft.orchestrator.model.{Context, Recovery, Task}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Try}
@@ -63,7 +63,7 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
         if (proc.isReady(me)) {
           updateState(idx, Running)
-          tryExecute(proc.execute(me), proc.maxRetries) {
+          tryExecute(proc.execute(me), proc.recover, proc.maxRetries) {
             updateState(idx, Finished)
 
             val promiseAvailable: Boolean = !promise.isCompleted
@@ -78,18 +78,20 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
       }
   }
 
-  private def tryExecute(block: => Unit, maxRetries: Int, currentRetry: Int = 1)(onComplete: => Unit): Unit = {
+  private def tryExecute(block: => Unit, recover: Option[Recovery], maxRetries: Int, currentRetry: Int = 1)(onComplete: => Unit): Unit = {
 
     ec.execute { () =>
       Try(block) match {
         case Failure(exception) =>
 
           if (currentRetry == maxRetries) {
-            if (!promise.isCompleted) {
-              promise.failure(exception)
+            recover match {
+              case Some(task) => task(exception)(this)
+              case None => completeWithFail(exception)
             }
+
           } else {
-            tryExecute(block, maxRetries, currentRetry + 1)(onComplete)
+            tryExecute(block, recover, maxRetries, currentRetry + 1)(onComplete)
           }
 
         case _ => onComplete
@@ -109,5 +111,11 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
   private def completeCall(): Unit = {
     if (!promise.isCompleted) promise.success(this)
+  }
+
+  private def completeWithFail(exception: Throwable): Unit = {
+    if (!promise.isCompleted) {
+      promise.failure(exception)
+    }
   }
 }

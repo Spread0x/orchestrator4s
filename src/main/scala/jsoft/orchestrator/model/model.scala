@@ -7,4 +7,5 @@ package object model {
   type Context = RuntimeContext
   type ACAux[A, B, C] = ApplyConverter[A, B] {type In = C}
   type Task = Context => Unit
+  type Recovery = Throwable => Task
 }

@@ -70,7 +70,9 @@ case object WebShop extends App with Directives {
       .triggers(EventOrderValid + EventGenerateOrderTrackID + EventCustomerInfo + EventOrderPlaced)
       .dispatch(EventOrderBuilt)
       .maxRetries(10)
+      .recoverWith(throwable => EventOrderInvalid(InvalidOrder("Some was wrong")))
       .receptor { (_, id, customer, webOrder) =>
+        throw new RuntimeException("pepe")
         EventOrderBuilt {
           Order(id, customer, webOrder.items.map(x => Item(x.itemId, (x.quantity * 2).toFloat)))
         }
@@ -90,7 +92,10 @@ case object WebShop extends App with Directives {
 
     val call: Future[Result] = webShowOrchestrator.dispatchAndExtract[Result](EventOrderPlaced(orderInstance))(
       EventTrackableOrder(_ => OK),
-      EventOrderInvalid(x => Error)
+      EventOrderInvalid { x =>
+        println(x)
+        Error
+      }
     )
     Await.result(call, Duration.Inf)
   }.fold(e => e.printStackTrace(), println)

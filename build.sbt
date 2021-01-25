@@ -1,9 +1,10 @@
 
 
 ThisBuild / version := "0.1.0"
-ThisBuild / version := "Simple DSL to orchestrate applications"
+ThisBuild / description := "Simple DSL to orchestrate applications"
 ThisBuild / organization := "jsoft.orchestrator"
 ThisBuild / organizationName := "jsoft"
+ThisBuild / licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 
 onChangedBuildSource in Global := ReloadOnSourceChanges
 

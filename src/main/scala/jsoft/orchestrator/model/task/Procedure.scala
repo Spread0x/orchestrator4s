@@ -3,7 +3,7 @@ package jsoft.orchestrator.model.task
 import jsoft.orchestrator.model.dependency.Dependency
 import jsoft.orchestrator.model.event.EventDefinition
 import jsoft.orchestrator.model.solver.SolverSettings
-import jsoft.orchestrator.model.{Context, Task}
+import jsoft.orchestrator.model.{Context, Recovery, Task}
 
 trait Procedure {
   type Repr
@@ -21,6 +21,8 @@ trait Procedure {
   def dispatchers: Array[EventDefinition[_]]
 
   def dependsOf(depsName: String): Boolean = scope.contains(depsName)
+
+  def recover: Option[Recovery]
 
   def routine: Repr => Task
 

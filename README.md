@@ -99,7 +99,9 @@ val WebShowDefinition: Seq[Procedure] = Seq(
   Process("build-id")
     // this process run without dependecies
     .triggers(AutoTrigger)
-    .dispatch(EventGenerateOrderTrackID)
+    .dispatch(EventGenerateOrderTrackID, EventOrderInvalid)
+    // when something fails, we can catch errors and follow execution
+    .recoverWith(throwable => EventOrderInvalid(InvalidOrder("Some was wrong")))
     .receptor { () =>
       EventGenerateOrderTrackID(UUID.randomUUID().toString)
     },
@@ -173,3 +175,6 @@ This project is a simple idea developed. Many features can be implemented, speci
 * Missing clustering support.
 * Missing transaction support.
 * Missing diagram exporting.
+
+## Need something else? 
+Send to me an issue!! :)
