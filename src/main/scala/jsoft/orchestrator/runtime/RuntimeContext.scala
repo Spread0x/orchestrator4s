@@ -28,6 +28,8 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
   def getEvent(eventName: String): Option[Event] = Option(eventsStore.get(eventName))
 
+  def getEvent[T: Manifest](eventDefinition: EventDefinition[T]): Option[T] = Option(eventsStore.get(eventDefinition.eventName)).flatMap(_.as[T])
+
   def push(events: Event*): Unit = synchronized {
 
     if (!promise.isCompleted) {

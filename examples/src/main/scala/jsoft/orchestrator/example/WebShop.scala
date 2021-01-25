@@ -8,15 +8,15 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 case object WebShop extends App with Directives {
 
   /** model */
-  case class WebItem(id: String, quantity: Int)
-  case class WebOrder(clientID: String, items: Seq[WebItem])
+  case class WebItem(itemId: String, quantity: Int)
+  case class WebOrder(customerId: String, items: Seq[WebItem])
 
-  case class Customer(id: String, name: String, directions: Seq[String])
+  case class Customer(id: String, name: String, age: Int, directions: Seq[String])
 
   case class Item(id: String, price: Float)
   case class Order(id: String, customer: Customer, items: Seq[Item])
@@ -29,14 +29,15 @@ case object WebShop extends App with Directives {
   sealed trait Result
   case object OK extends Result
   case object Error extends Result
+
   /** events */
-  private val EventOrderPlaced: EventDefinition[WebOrder] = Event[WebOrder]("order_placed").withDescription("Order placed from web service")
-  private val EventCustomerInfo: EventDefinition[Customer] = Event[Customer]("find_customer_info")
-  private val EventOrderBuilt: EventDefinition[Order] = Event[Order]("generate_order")
-  private val EventOrderInvalid: EventDefinition[InvalidOrder] = Event[InvalidOrder]("invalid_order")
-  private val EventOrderValid: EventDefinition[ValidOrder.type] = Event[ValidOrder.type]("valid_order")
-  private val EventTrackableOrder: EventDefinition[TrackableOrder] = Event[TrackableOrder]("trackable_order")
-  private val EventGenerateOrderTrackID: EventDefinition[String] = Event[String]("event_generate_order_track_id")
+  private val EventOrderPlaced: EventDefinition[WebOrder] = Event("order_placed").withDescription("Order placed from web service")
+  private val EventCustomerInfo: EventDefinition[Customer] = Event("find_customer_info")
+  private val EventOrderBuilt: EventDefinition[Order] = Event("generate_order")
+  private val EventOrderInvalid: EventDefinition[InvalidOrder] = Event("invalid_order")
+  private val EventOrderValid: EventDefinition[ValidOrder.type] = Event("valid_order")
+  private val EventTrackableOrder: EventDefinition[TrackableOrder] = Event("trackable_order")
+  private val EventGenerateOrderTrackID: EventDefinition[String] = Event("event_generate_order_track_id")
 
   /** processors */
   private val WebShowDefinition: Seq[Procedure] = Seq(
@@ -44,7 +45,7 @@ case object WebShop extends App with Directives {
       .triggers(EventOrderPlaced)
       .dispatch(EventCustomerInfo)
       .receptor { webOrder =>
-        EventCustomerInfo(Customer(webOrder.clientID, "Joaco", Seq("José Pedro Varela")))
+        EventCustomerInfo(Customer(webOrder.customerId, "Tom", 25, Seq("Some where")))
       },
 
     Process("validate-order")
@@ -71,7 +72,7 @@ case object WebShop extends App with Directives {
       .maxRetries(10)
       .receptor { (_, id, customer, webOrder) =>
         EventOrderBuilt {
-          Order(id, customer, webOrder.items.map(x => Item(x.id, (x.quantity * 2).toFloat)))
+          Order(id, customer, webOrder.items.map(x => Item(x.itemId, (x.quantity * 2).toFloat)))
         }
       },
 
@@ -86,6 +87,12 @@ case object WebShop extends App with Directives {
   //  private val orderInstance: WebOrder = WebOrder("joaco", Nil)
   private val orderInstance: WebOrder = WebOrder("joaco", Seq(WebItem("pc", 1)))
   Try {
+    webShowOrchestrator.dispatch(EventOrderPlaced(orderInstance)).onComplete {
+      case Failure(exception) =>
+      case Success(context) =>
+        val trackableOrder: Option[TrackableOrder] = context.getEvent(EventTrackableOrder)
+        // do something
+    }
     val call: Future[Result] = webShowOrchestrator.dispatchAndExtract[Result](EventOrderPlaced(orderInstance))(
       EventTrackableOrder(_ => OK),
       EventOrderInvalid(x => Error)

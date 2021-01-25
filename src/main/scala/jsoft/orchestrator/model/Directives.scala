@@ -22,7 +22,6 @@ trait Directives extends EventApplyConverter with JoinInstances {
 
   }
 
-//  final implicit def asEvent[A: Manifest](item: (String, A)): Event {type Repr = A} = Directives.eventBuilder(item)
 
   final def Orchestrate(name: String, procedures: Procedure*)(implicit ec: ExecutionContext): OrchestratorService = OrchestratorServiceImpl(name, Array(procedures: _*))
 
@@ -31,12 +30,5 @@ trait Directives extends EventApplyConverter with JoinInstances {
   final def Process(name: String): SolverMetadata = SolverMetadata(name, None)
 }
 
-object Directives {
-  final def eventBuilder[A: Manifest](item: (String, A)): Event {type Repr = A} = new Event {
-    override type Repr = A
-
-    val name: String = item._1
-    val id: String = typeOf[A].dealias.toString
-    val value: Repr = item._2
-  }
+object Directives extends Directives {
 }
