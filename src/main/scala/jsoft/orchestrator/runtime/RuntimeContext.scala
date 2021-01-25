@@ -1,7 +1,7 @@
 package jsoft.orchestrator.runtime
 
 import io.timeandspace.smoothie.SmoothieMap
-import jsoft.orchestrator.model.Context
+import jsoft.orchestrator.model.{Context, Task}
 import jsoft.orchestrator.model.event.{Event, EventDefinition}
 import jsoft.orchestrator.model.state.{Finished, Idle, Running, State}
 import jsoft.orchestrator.model.task.Procedure
@@ -20,9 +20,7 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
   def binding(): Future[Context] = maybeResult
 
-  def hasEvent(eventName: String): Boolean = {
-    eventsStore.containsKey(eventName)
-  }
+  def hasEvent(eventName: String): Boolean = eventsStore.containsKey(eventName)
 
   def getEvents(eventSpec: EventDefinition[_]*): Seq[Event] = eventSpec.flatMap(x => getEvent(x.eventName))
 
@@ -30,7 +28,13 @@ final case class RuntimeContext(pid: String, leafNodes: Int, procedures: Array[P
 
   def getEvent[T: Manifest](eventDefinition: EventDefinition[T]): Option[T] = Option(eventsStore.get(eventDefinition.eventName)).flatMap(_.as[T])
 
-  def push(events: Event*): Unit = synchronized {
+  def addTask(task: Task): Unit = {
+    task(this)
+  }
+
+  def push(events: Event*): Unit = pushFromSeq(events)
+
+  def pushFromSeq(events: Seq[Event]): Unit = synchronized {
 
     if (!promise.isCompleted) {
       val hasDeps: Boolean = {

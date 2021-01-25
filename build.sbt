@@ -26,7 +26,12 @@ lazy val root = (project in file("."))
     scalacOptions ++= Seq("-language:higherKinds"),
     crossScalaVersions := Dependencies.scalaVersions,
     scalacOptions ++= Seq("-feature", "-deprecation"),
-    libraryDependencies ++= Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value, Dependencies.smoothieMap)
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      Dependencies.smoothieMap,
+      Dependencies.logbackClassic,
+      Dependencies.logbackCore
+    )
   )
 
 

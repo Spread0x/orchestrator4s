@@ -1,9 +1,9 @@
 package jsoft.orchestrator.model.task
 
-import jsoft.orchestrator.model.Context
 import jsoft.orchestrator.model.dependency.Dependency
-import jsoft.orchestrator.model.event.{Event, EventDefinition}
+import jsoft.orchestrator.model.event.EventDefinition
 import jsoft.orchestrator.model.solver.SolverSettings
+import jsoft.orchestrator.model.{Context, Task}
 
 trait Procedure {
   type Repr
@@ -22,7 +22,7 @@ trait Procedure {
 
   def dependsOf(depsName: String): Boolean = scope.contains(depsName)
 
-  def routine: Repr => Event
+  def routine: Repr => Task
 
   def isReady(context: Context): Boolean = {
     solverSettings.dependency.isReady(context)
@@ -32,7 +32,7 @@ trait Procedure {
     val dependency: Dependency[Repr] = solverSettings.dependency
 
     dependency.extract(context) match {
-      case Some(data) => context.push(routine(data))
+      case Some(data) => context.addTask(routine(data))
       case None => println(s"Cant extract data from Context in procedure '$identifier'")
     }
   }

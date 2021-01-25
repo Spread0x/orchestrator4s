@@ -1,12 +1,12 @@
 package jsoft.orchestrator.model.task
 
-import jsoft.orchestrator.model.ACAux
+import jsoft.orchestrator.model.{ACAux, Task}
 import jsoft.orchestrator.model.event.{Event, EventDefinition}
 import jsoft.orchestrator.model.solver.SolverSettings
 
 final case class TaskSettings[L, B](
                                      spec: SolverSettings[L],
-                                     acp: ACAux[L, Event, B],
+                                     acp: ACAux[L, Task, B],
                                      dispatchesLocal: Array[EventDefinition[_]],
                                      maxRetriesOnFail: Int = 1
                                    ) {
@@ -20,7 +20,7 @@ final case class TaskSettings[L, B](
 
   def receptor(in: B): Procedure = {
 
-    val impl: L => Event = acp(in)
+    val impl: L => Task = acp(in)
 
     new Procedure {
       override type Repr = L
@@ -28,7 +28,7 @@ final case class TaskSettings[L, B](
       val identifier: String = spec.metadata.name
       val dispatchers: Array[EventDefinition[_]] = dispatchesLocal
       val solverSettings: SolverSettings[L] = spec
-      val routine: L => Event = impl
+      val routine: L => Task = impl
     }
   }
 }

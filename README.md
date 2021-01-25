@@ -1,6 +1,6 @@
 # Orchestrator4s
 
-Orchestrator4s is a simple lib to orchestrate yours applications easily.  
+Orchestrator4s is a simple library to orchestrate yours applications easily.  
 It provides a set of directives to declare how your applications works and which events are requires for dispatching
 logic. In background a graph of dependencies is declared.
 
@@ -149,7 +149,7 @@ webShowOrchestrator.dispatch(EventOrderPlaced(orderInstance)).onComplete {
 ```scala
 // Here EventDefinition is used as Event extractor from call
 // Each extraction must returns same type
-webShowOrchestrator.dispatchAndExtract[Result](EventOrderPlaced(orderInstance))(
+val result: Future[Result] = webShowOrchestrator.dispatchAndExtract[Result](EventOrderPlaced(orderInstance))(
   EventTrackableOrder(_ => OK),
   EventOrderInvalid(x => Error)
 )

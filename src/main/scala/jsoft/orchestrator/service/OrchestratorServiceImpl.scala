@@ -23,7 +23,8 @@ final case class OrchestratorServiceImpl(name: String, procedures: Array[Procedu
     new Extractor[Future, T] {
       val runtimeContext: Context = RuntimeContext(UUID.randomUUID().toString, leafNodes, procedures)
       val binding: Future[Context] = runtimeContext.binding()
-      runtimeContext.push(events: _*)
+
+      runtimeContext.pushFromSeq(events)
 
       override def apply(mappers: Mapper[_, T, Future]*): Future[T] = {
         binding.flatMap { context =>
@@ -49,7 +50,7 @@ final case class OrchestratorServiceImpl(name: String, procedures: Array[Procedu
   override def dispatch(events: Event*): Future[Context] = {
     val runtimeContext: Context = RuntimeContext(UUID.randomUUID().toString, leafNodes, procedures)
     val binding: Future[Context] = runtimeContext.binding()
-    runtimeContext.push(events: _*)
+    runtimeContext.pushFromSeq(events)
     binding
   }
 }
