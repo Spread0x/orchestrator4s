@@ -1,5 +1,9 @@
 # Orchestrator4s
 
+[![version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/modux4s/modux)
+[![version](https://img.shields.io/badge/scala-2.12-blue.svg)](https://github.com/modux4s/modux)
+[![version](https://img.shields.io/badge/scala-2.13-blue.svg)](https://github.com/modux4s/modux)
+
 Orchestrator4s is a simple library to orchestrate yours applications easily.  
 It provides a set of directives to declare how your applications works and which events are requires for dispatching
 logic. In background a graph of dependencies is declared.
@@ -98,7 +102,7 @@ val WebShowDefinition: Seq[Procedure] = Seq(
 
   Process("build-id")
     // this process run without dependecies
-    .triggers(AutoTrigger)
+    .triggers()
     .dispatch(EventGenerateOrderTrackID, EventOrderInvalid)
     // when something fails, we can catch errors and follow execution
     .recoverWith(throwable => EventOrderInvalid(InvalidOrder("Some was wrong")))
@@ -175,6 +179,13 @@ This project is a simple idea developed. Many features can be implemented, speci
 * Missing clustering support.
 * Missing transaction support.
 * Missing diagram exporting.
+
+## Installing
+
+```sbt
+resolvers += Resolver.bintrayRepo("jsoft", "maven")
+libraryDependencies += "jsoft.orchestrator" %% "orchestrator4s" % "0.1.0"
+```
 
 ## Need something else? 
 Send to me an issue!! :)

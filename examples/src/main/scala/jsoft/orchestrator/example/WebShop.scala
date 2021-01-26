@@ -60,7 +60,7 @@ case object WebShop extends App with Directives {
       },
 
     Process("build-id")
-      .triggers(AutoTrigger)
+      .triggers()
       .dispatch(EventGenerateOrderTrackID)
       .receptor { () =>
         EventGenerateOrderTrackID(UUID.randomUUID().toString)
