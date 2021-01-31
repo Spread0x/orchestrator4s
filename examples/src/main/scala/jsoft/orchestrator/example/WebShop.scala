@@ -72,7 +72,6 @@ case object WebShop extends App with Directives {
       .maxRetries(10)
       .recoverWith(throwable => EventOrderInvalid(InvalidOrder("Some was wrong")))
       .receptor { (_, id, customer, webOrder) =>
-        throw new RuntimeException("pepe")
         EventOrderBuilt {
           Order(id, customer, webOrder.items.map(x => Item(x.itemId, (x.quantity * 2).toFloat)))
         }

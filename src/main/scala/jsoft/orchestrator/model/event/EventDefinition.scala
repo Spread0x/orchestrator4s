@@ -1,6 +1,6 @@
 package jsoft.orchestrator.model.event
 
-import jsoft.orchestrator.lib.{Builders, Mapper}
+import jsoft.orchestrator.lib.{Builders, IDGenerator, Mapper}
 import jsoft.orchestrator.model.Context
 import jsoft.orchestrator.model.dependency.Dependency
 
@@ -9,9 +9,10 @@ import scala.util.Try
 
 final case class EventDefinition[T: Manifest](eventName: String, description: Option[String]) extends Dependency[Tuple1[T]] {
 
+  private val internalID: String = IDGenerator()
   val scope: Set[String] = Set(eventName)
 
-  def apply(instance: T): Event = Builders.eventBuilder(eventName, instance)
+  def apply(instance: T): Event = Builders.eventBuilder(eventName, internalID, instance)
 
   def apply[B](f: T => B): Mapper[T, B, Future] = {
     val me: EventDefinition[T] = this

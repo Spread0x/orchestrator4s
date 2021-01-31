@@ -1,20 +1,22 @@
 package jsoft.orchestrator.model.event
 
-import scala.reflect.runtime.universe.typeOf
-
 trait Event {
 
   type Repr
 
   def name: String
 
-  protected val id: String
-  protected val value: Repr
+  def id: String
+
+  protected def value: Repr
 
   override def toString: String = name
 
-  def as[T: Manifest]: Option[T] = {
-    if (typeOf[T].dealias.toString == id) Option(value.asInstanceOf[T]) else None
+  def as[T:Manifest]: Option[T] = {
+    value match {
+      case t: T => Option(t)
+      case _ => None
+    }
   }
 
 }

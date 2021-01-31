@@ -1,6 +1,6 @@
 
 
-ThisBuild / version := "0.1.0"
+ThisBuild / version := "0.1.1"
 ThisBuild / description := "Simple DSL to orchestrate applications"
 ThisBuild / organization := "jsoft.orchestrator"
 ThisBuild / organizationName := "jsoft"
