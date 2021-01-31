@@ -1,6 +1,6 @@
 # Orchestrator4s
 
-[![version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/modux4s/modux)
+[![version](https://img.shields.io/badge/version-0.1.1-green.svg)](https://github.com/modux4s/modux)
 [![version](https://img.shields.io/badge/scala-2.12-blue.svg)](https://github.com/modux4s/modux)
 [![version](https://img.shields.io/badge/scala-2.13-blue.svg)](https://github.com/modux4s/modux)
 
