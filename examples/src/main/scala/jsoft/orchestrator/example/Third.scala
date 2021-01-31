@@ -2,7 +2,7 @@ package jsoft.orchestrator.example
 
 import jsoft.orchestrator.model.event.EventDefinition
 import jsoft.orchestrator.model.task.Procedure
-import jsoft.orchestrator.model.{Directives, Context}
+import jsoft.orchestrator.model.{OrchestratorDirectives$$, Context}
 import jsoft.orchestrator.service.OrchestratorService
 
 import java.util.UUID
@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-object Third extends Directives {
+object Third extends OrchestratorDirectives$$ {
 
   final case class Client(directions: Seq[String], accounts: Set[UUID])
 

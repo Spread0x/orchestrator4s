@@ -1,6 +1,6 @@
 package jsoft.orchestrator.model.solver
 
-import jsoft.orchestrator.model.Directives.AutoTrigger
+import jsoft.orchestrator.model.OrchestratorDirectives.AutoTrigger
 import jsoft.orchestrator.model.Task
 import jsoft.orchestrator.model.dependency.{ApplyConverter, Dependency}
 import jsoft.orchestrator.model.task.TaskSettings

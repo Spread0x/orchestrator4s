@@ -1,6 +1,6 @@
 package jsoft.orchestrator.example
 
-import jsoft.orchestrator.model.Directives
+import jsoft.orchestrator.model.OrchestratorDirectives
 import jsoft.orchestrator.model.event.EventDefinition
 import jsoft.orchestrator.model.task.Procedure
 
@@ -10,7 +10,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
-case object WebShop extends App with Directives {
+case object WebShop extends App with OrchestratorDirectives {
 
   /** model */
   case class WebItem(itemId: String, quantity: Int)

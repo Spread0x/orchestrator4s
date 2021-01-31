@@ -4,14 +4,14 @@ import jsoft.orchestrator.model.dependency.JoinInstances
 import jsoft.orchestrator.model.dependency.impl.TaskApplyConverter
 import jsoft.orchestrator.model.event.EventDefinition
 import jsoft.orchestrator.model.task.Procedure
-import jsoft.orchestrator.model.{Context, Directives}
+import jsoft.orchestrator.model.{Context, OrchestratorDirectives$$}
 import jsoft.orchestrator.service.OrchestratorService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-object Second extends TaskApplyConverter with Directives with JoinInstances {
+object Second extends TaskApplyConverter with OrchestratorDirectives$$ with JoinInstances {
 
   final case class Collector(val1: Int, val2: Int)
 

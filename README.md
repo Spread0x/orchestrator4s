@@ -47,7 +47,7 @@ Next we need declare which events are needed to dispatch our business logic.
 
 ```scala
 import jsoft.orchestrator.model.event.EventDefinition
-import jsoft.orchestrator.model.Directives._
+import jsoft.orchestrator.model.OrchestractorDirectives$._
 
 val EventOrderPlaced: EventDefinition[WebOrder] = Event("order_placed")
   .withDescription("Order placed from web service")
@@ -74,7 +74,7 @@ val EventOrderBuilt: EventDefinition[Order] = Event("generate_order")
 Now is time to declare our logic:
 
 ```scala
-import jsoft.orchestrator.model.Directives._
+import jsoft.orchestrator.model.OrchestractorDirectives$._
 
 val WebShowDefinition: Seq[Procedure] = Seq(
 
@@ -132,7 +132,7 @@ val WebShowDefinition: Seq[Procedure] = Seq(
 Finally, we need join all to declare our orchestrator.
 
 ```scala
-import jsoft.orchestrator.model.Directives._
+import jsoft.orchestrator.model.OrchestractorDirectives$._
 
 val webShowOrchestrator = Orchestrate("web-shop", WebShowDefinition: _*)
 ```

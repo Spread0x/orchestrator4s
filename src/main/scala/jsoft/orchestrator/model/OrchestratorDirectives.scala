@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
-trait Directives extends TaskApplyConverter with JoinInstances {
+trait OrchestratorDirectives extends TaskApplyConverter with JoinInstances {
 
   final val AutoTrigger = new Dependency[Unit] {
     val scope: Set[String] = Set.empty
@@ -40,5 +40,5 @@ trait Directives extends TaskApplyConverter with JoinInstances {
   }
 }
 
-object Directives extends Directives {
+object OrchestratorDirectives extends OrchestratorDirectives {
 }
