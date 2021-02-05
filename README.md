@@ -184,7 +184,7 @@ This project is a simple idea developed. Many features can be implemented, speci
 
 ```sbt
 resolvers += Resolver.bintrayRepo("jsoft", "maven")
-libraryDependencies += "jsoft.orchestrator" %% "orchestrator4s" % "0.1.0"
+libraryDependencies += "jsoft.orchestrator" %% "orchestrator4s" % "0.1.1"
 ```
 
 ## Need something else? 
